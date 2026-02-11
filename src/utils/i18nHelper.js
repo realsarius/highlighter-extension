@@ -34,7 +34,7 @@ async function initI18n() {
     console.log('[i18n] Initializing...');
     
     // 1. Get stored language preference
-    const result = await browser.storage.local.get('settings');
+    const result = await chrome.storage.local.get('settings');
     const settings = result.settings || {};
     
     // Default to browser language or 'en' if not supported/set
@@ -42,7 +42,7 @@ async function initI18n() {
     console.log('[i18n] Settings language:', targetLang);
     
     if (!targetLang) {
-      const browserLang = browser.i18n.getUILanguage().split('-')[0];
+      const browserLang = chrome.i18n.getUILanguage().split('-')[0];
       console.log('[i18n] Browser language:', browserLang);
       // Check if browser lang is supported
       if (SUPPORTED_LANGUAGES.some(l => l.code === browserLang)) {
@@ -56,7 +56,7 @@ async function initI18n() {
     console.log('[i18n] Target language:', currentLanguage);
     
     // 2. Load translation file
-    const url = browser.runtime.getURL(`_locales/${currentLanguage}/messages.json`);
+    const url = chrome.runtime.getURL(`_locales/${currentLanguage}/messages.json`);
     console.log('[i18n] Fetching:', url);
     
     const resp = await fetch(url);
@@ -64,7 +64,7 @@ async function initI18n() {
     if (!resp.ok) {
       console.warn('[i18n] Failed to load locale:', resp.status, '- falling back to en');
       // Fallback to English
-      const fallbackUrl = browser.runtime.getURL('_locales/en/messages.json');
+      const fallbackUrl = chrome.runtime.getURL('_locales/en/messages.json');
       const fallbackResp = await fetch(fallbackUrl);
       if (fallbackResp.ok) {
         translations = await fallbackResp.json();

@@ -29,12 +29,12 @@ async function init() {
     }
 
     // Get active tab first
-    const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tabs.length > 0) {
       currentTabId = tabs[0].id;
     }
 
-    const response = await browser.runtime.sendMessage({
+    const response = await chrome.runtime.sendMessage({
       type: 'POPUP_GET_PAGE_DATA',
       payload: {}
     });
@@ -73,7 +73,7 @@ colorPalette.addEventListener('click', async (e) => {
   updateSelectedColor(color);
 
   try {
-    await browser.runtime.sendMessage({
+    await chrome.runtime.sendMessage({
       type: 'POPUP_HIGHLIGHT_SELECTION',
       payload: { color }
     });
@@ -226,7 +226,7 @@ function showColorDropdown(itemEl, item) {
 // ============================================
 async function deleteHighlight(id) {
   try {
-    await browser.runtime.sendMessage({
+    await chrome.runtime.sendMessage({
       type: 'POPUP_REMOVE_HIGHLIGHT',
       payload: { highlightId: id, tabId: currentTabId }
     });
@@ -240,7 +240,7 @@ async function deleteHighlight(id) {
 
 async function updateHighlightColor(id, color) {
   try {
-    await browser.runtime.sendMessage({
+    await chrome.runtime.sendMessage({
       type: 'POPUP_UPDATE_HIGHLIGHT',
       payload: { highlightId: id, updates: { color }, tabId: currentTabId }
     });
@@ -254,7 +254,7 @@ async function updateHighlightColor(id, color) {
 
 async function refreshHighlights() {
   try {
-    const response = await browser.runtime.sendMessage({
+    const response = await chrome.runtime.sendMessage({
       type: 'POPUP_GET_PAGE_DATA',
       payload: {}
     });
@@ -319,7 +319,7 @@ function showNoteInput(itemEl, item) {
         .filter(t => t.length > 1)
     )];
     
-    await browser.runtime.sendMessage({
+    await chrome.runtime.sendMessage({
       type: 'POPUP_UPDATE_HIGHLIGHT',
       payload: { highlightId: item.id, updates: { note, tags }, tabId: currentTabId }
     });
@@ -339,7 +339,7 @@ function showNoteInput(itemEl, item) {
 // ALL NOTES BUTTON
 // ============================================
 allNotesBtn.addEventListener('click', () => {
-  browser.tabs.create({ url: browser.runtime.getURL('notes/notes.html') });
+  chrome.tabs.create({ url: chrome.runtime.getURL('notes/notes.html') });
 });
 
 // ============================================

@@ -3,10 +3,6 @@
  * Single source of truth for storage operations
  */
 
-// Load browser polyfill for Chrome compatibility
-try { importScripts('lib/browser-polyfill.min.js'); } catch (e) { /* Firefox doesn't need it */ }
-
-
 // ============================================
 // STORAGE KEYS
 // ============================================
@@ -44,7 +40,7 @@ function normalizeUrl(url) {
  */
 async function getHighlightsForUrl(url) {
   const normalizedUrl = normalizeUrl(url);
-  const result = await browser.storage.local.get(STORAGE_KEY_HIGHLIGHTS);
+  const result = await chrome.storage.local.get(STORAGE_KEY_HIGHLIGHTS);
   const highlights = result[STORAGE_KEY_HIGHLIGHTS] || {};
   return highlights[normalizedUrl] || { title: '', items: [] };
 }
@@ -58,7 +54,7 @@ async function getHighlightsForUrl(url) {
  */
 async function saveHighlightsForUrl(url, title, items) {
   const normalizedUrl = normalizeUrl(url);
-  const result = await browser.storage.local.get(STORAGE_KEY_HIGHLIGHTS);
+  const result = await chrome.storage.local.get(STORAGE_KEY_HIGHLIGHTS);
   const highlights = result[STORAGE_KEY_HIGHLIGHTS] || {};
 
   if (items.length === 0) {
@@ -68,7 +64,7 @@ async function saveHighlightsForUrl(url, title, items) {
     highlights[normalizedUrl] = { title, items };
   }
 
-  await browser.storage.local.set({ [STORAGE_KEY_HIGHLIGHTS]: highlights });
+  await chrome.storage.local.set({ [STORAGE_KEY_HIGHLIGHTS]: highlights });
 }
 
 /**
@@ -119,7 +115,7 @@ async function updateHighlight(url, highlightId, updates) {
  * @returns {Promise<Object>} Settings object with defaults applied
  */
 async function getSettings() {
-  const result = await browser.storage.local.get(STORAGE_KEY_SETTINGS);
+  const result = await chrome.storage.local.get(STORAGE_KEY_SETTINGS);
   return { ...DEFAULT_SETTINGS, ...result[STORAGE_KEY_SETTINGS] };
 }
 
@@ -131,7 +127,7 @@ async function getSettings() {
 async function updateSettings(updates) {
   const settings = await getSettings();
   const newSettings = { ...settings, ...updates };
-  await browser.storage.local.set({ [STORAGE_KEY_SETTINGS]: newSettings });
+  await chrome.storage.local.set({ [STORAGE_KEY_SETTINGS]: newSettings });
   return newSettings;
 }
 
@@ -139,7 +135,7 @@ async function updateSettings(updates) {
 // MESSAGE HANDLERS
 // ============================================
 
-browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // Handle async responses
   const handleAsync = async () => {
     const { type, payload } = message;
@@ -181,7 +177,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
       // Popup requests page data
       case 'POPUP_GET_PAGE_DATA': {
-        const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+        const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
         if (tabs.length === 0) return { pageData: { title: '', items: [] }, settings: await getSettings() };
 
         const activeUrl = tabs[0].url;
@@ -192,16 +188,16 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
       // Get all highlights (for dashboard)
       case 'GET_ALL_HIGHLIGHTS': {
-        const result = await browser.storage.local.get('highlights');
+        const result = await chrome.storage.local.get('highlights');
         return { highlights: result.highlights || {} };
       }
 
       // Popup requests highlight with specific color
       case 'POPUP_HIGHLIGHT_SELECTION': {
         const { color } = payload;
-        const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+        const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
         if (tabs.length > 0) {
-          await browser.tabs.sendMessage(tabs[0].id, {
+          await chrome.tabs.sendMessage(tabs[0].id, {
             type: 'DO_HIGHLIGHT',
             payload: { color }
           });
@@ -216,18 +212,18 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         let targetTabId = tabId;
         if (!targetTabId) {
-          const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+          const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
           if (tabs.length > 0) targetTabId = tabs[0].id;
         }
 
         if (targetTabId) {
-          const tab = await browser.tabs.get(targetTabId);
+          const tab = await chrome.tabs.get(targetTabId);
           const activeUrl = tab.url;
 
           await removeHighlight(activeUrl, highlightId);
 
           // Tell content script to remove the visual
-          await browser.tabs.sendMessage(targetTabId, {
+          await chrome.tabs.sendMessage(targetTabId, {
             type: 'REMOVE_HIGHLIGHT_VISUAL',
             payload: { highlightId }
           }).catch(() => { });
@@ -241,18 +237,18 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         let targetTabId = tabId;
         if (!targetTabId) {
-          const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+          const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
           if (tabs.length > 0) targetTabId = tabs[0].id;
         }
 
         if (targetTabId) {
-          const tab = await browser.tabs.get(targetTabId);
+          const tab = await chrome.tabs.get(targetTabId);
           const activeUrl = tab.url;
 
           await updateHighlight(activeUrl, highlightId, updates);
 
           // Always tell content script to update its cache/visuals
-          await browser.tabs.sendMessage(targetTabId, {
+          await chrome.tabs.sendMessage(targetTabId, {
             type: 'UPDATE_HIGHLIGHT_DATA',
             payload: { highlightId, updates }
           }).catch(() => { });
@@ -272,14 +268,14 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
       // Get all highlights across all sites
       case 'GET_ALL_HIGHLIGHTS': {
-        const result = await browser.storage.local.get(STORAGE_KEY_HIGHLIGHTS);
+        const result = await chrome.storage.local.get(STORAGE_KEY_HIGHLIGHTS);
         return { highlights: result[STORAGE_KEY_HIGHLIGHTS] || {} };
       }
 
       // Import highlights (merge with existing)
       case 'IMPORT_HIGHLIGHTS': {
         const { highlights: importedHighlights } = payload;
-        const result = await browser.storage.local.get(STORAGE_KEY_HIGHLIGHTS);
+        const result = await chrome.storage.local.get(STORAGE_KEY_HIGHLIGHTS);
         const existingHighlights = result[STORAGE_KEY_HIGHLIGHTS] || {};
 
         // Merge: for each URL, merge items (avoid duplicates by ID)
@@ -297,7 +293,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
           }
         }
 
-        await browser.storage.local.set({ [STORAGE_KEY_HIGHLIGHTS]: existingHighlights });
+        await chrome.storage.local.set({ [STORAGE_KEY_HIGHLIGHTS]: existingHighlights });
         return { success: true };
       }
 
@@ -310,7 +306,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
           if (payload.showContextMenu) {
             createContextMenus();
           } else {
-            browser.contextMenus.removeAll();
+            chrome.contextMenus.removeAll();
           }
         }
 
@@ -319,7 +315,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
       // Clear all data
       case 'CLEAR_ALL_DATA': {
-        await browser.storage.local.remove(STORAGE_KEY_HIGHLIGHTS);
+        await chrome.storage.local.remove(STORAGE_KEY_HIGHLIGHTS);
         return { success: true };
       }
 
@@ -337,13 +333,13 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // KEYBOARD SHORTCUT HANDLER
 // ============================================
 
-browser.commands.onCommand.addListener(async (command) => {
+chrome.commands.onCommand.addListener(async (command) => {
   if (command === 'highlight-selection') {
     const settings = await getSettings();
-    const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
 
     if (tabs.length > 0) {
-      browser.tabs.sendMessage(tabs[0].id, {
+      chrome.tabs.sendMessage(tabs[0].id, {
         type: 'DO_HIGHLIGHT',
         payload: { color: settings.lastUsedColor }
       });
@@ -367,17 +363,17 @@ const MENU_COLORS = [
 // Create context menu on install/startup
 function createContextMenus() {
   // Remove existing menus first
-  browser.contextMenus.removeAll().then(() => {
+  chrome.contextMenus.removeAll().then(() => {
     // Parent menu
-    browser.contextMenus.create({
+    chrome.contextMenus.create({
       id: 'highlighter-parent',
-      title: browser.i18n.getMessage('contextMenuHighlight') || 'Vurgula',
+      title: chrome.i18n.getMessage('contextMenuHighlight') || 'Vurgula',
       contexts: ['selection']
     });
 
     // Color submenu items
     MENU_COLORS.forEach(item => {
-      browser.contextMenus.create({
+      chrome.contextMenus.create({
         id: item.id,
         parentId: 'highlighter-parent',
         title: item.title,
@@ -388,13 +384,13 @@ function createContextMenus() {
 }
 
 // Handle menu clicks
-browser.contextMenus.onClicked.addListener(async (info, tab) => {
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   // Check if it's a color menu item
   const colorItem = MENU_COLORS.find(c => c.id === info.menuItemId);
 
   if (colorItem && tab?.id) {
     // Send highlight command to content script
-    browser.tabs.sendMessage(tab.id, {
+    chrome.tabs.sendMessage(tab.id, {
       type: 'DO_HIGHLIGHT',
       payload: { color: colorItem.color }
     });

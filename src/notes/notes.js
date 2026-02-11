@@ -42,7 +42,7 @@ async function init() {
       setupLanguageSelector();
     }
 
-    const response = await browser.runtime.sendMessage({
+    const response = await chrome.runtime.sendMessage({
       type: 'GET_ALL_HIGHLIGHTS',
       payload: {}
     });
@@ -160,7 +160,7 @@ function createSiteGroup(url, title, items) {
 
   // Site header click → open page
   group.querySelector('.site-header').addEventListener('click', () => {
-    browser.tabs.create({ url });
+    chrome.tabs.create({ url });
   });
 
   // Individual highlight clicks → open page and scroll to highlight
@@ -173,17 +173,17 @@ function createSiteGroup(url, title, items) {
         const highlightId = el.dataset.id;
         
         // Create tab and wait for it to load
-        const tab = await browser.tabs.create({ url });
+        const tab = await chrome.tabs.create({ url });
         
         // Send scroll message after short delay to allow page to load
         setTimeout(() => {
-          browser.tabs.sendMessage(tab.id, {
+          chrome.tabs.sendMessage(tab.id, {
             type: 'SCROLL_TO_HIGHLIGHT',
             payload: { highlightId }
           }).catch(() => {
             // Tab might not be ready yet, retry
             setTimeout(() => {
-              browser.tabs.sendMessage(tab.id, {
+              chrome.tabs.sendMessage(tab.id, {
                 type: 'SCROLL_TO_HIGHLIGHT',
                 payload: { highlightId }
               }).catch(() => {});
@@ -203,7 +203,7 @@ function createSiteGroup(url, title, items) {
         if (!confirm('Bu vurguyu silmek istediğinize emin misiniz?')) return;
 
         // Remove from storage
-        await browser.runtime.sendMessage({
+        await chrome.runtime.sendMessage({
           type: 'REMOVE_HIGHLIGHT',
           payload: { 
             url: url,
@@ -348,7 +348,7 @@ const importFile = document.getElementById('importFile');
 // Export all highlights as JSON
 exportBtn.addEventListener('click', async () => {
   try {
-    const response = await browser.runtime.sendMessage({
+    const response = await chrome.runtime.sendMessage({
       type: 'GET_ALL_HIGHLIGHTS',
       payload: {}
     });
@@ -408,7 +408,7 @@ importFile.addEventListener('change', async (e) => {
     }
 
     // Send to background for merge
-    await browser.runtime.sendMessage({
+    await chrome.runtime.sendMessage({
       type: 'IMPORT_HIGHLIGHTS',
       payload: { highlights: data.highlights }
     });
@@ -488,7 +488,7 @@ navTabs.forEach(tab => {
 // SETTINGS HANDLERS
 // ============================================
 async function loadSettings() {
-  const response = await browser.runtime.sendMessage({
+  const response = await chrome.runtime.sendMessage({
     type: 'GET_SETTINGS',
     payload: {}
   });
@@ -510,7 +510,7 @@ themeSelect.addEventListener('change', async () => {
   currentSettings.theme = theme;
   applyTheme(theme);
   
-  await browser.runtime.sendMessage({
+  await chrome.runtime.sendMessage({
     type: 'UPDATE_SETTINGS',
     payload: { theme }
   });
@@ -520,7 +520,7 @@ contextMenuToggle.addEventListener('change', async () => {
   const showContextMenu = contextMenuToggle.checked;
   currentSettings.showContextMenu = showContextMenu;
   
-  await browser.runtime.sendMessage({
+  await chrome.runtime.sendMessage({
     type: 'UPDATE_SETTINGS',
     payload: { showContextMenu }
   });
@@ -532,7 +532,7 @@ clearAllBtn.addEventListener('click', async () => {
   const confirmed = confirm('Tüm vurgular silinecek. Bu işlem geri alınamaz. Devam edilsin mi?');
   if (!confirmed) return;
   
-  await browser.runtime.sendMessage({
+  await chrome.runtime.sendMessage({
     type: 'CLEAR_ALL_DATA',
     payload: {}
   });
@@ -724,12 +724,12 @@ function setupLanguageSelector() {
     const newLang = e.target.value;
     
     // Get existing settings
-    const result = await browser.storage.local.get('settings');
+    const result = await chrome.storage.local.get('settings');
     const settings = result.settings || {};
     
     // Update language
     settings.language = newLang;
-    await browser.storage.local.set({ settings });
+    await chrome.storage.local.set({ settings });
     
     // Reload to apply changes
     window.location.reload();

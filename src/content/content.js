@@ -504,7 +504,7 @@ function showHighlightToolbar(highlightSpan, id) {
       const color = btn.dataset.color;
       updateHighlightColor(id, color);
       
-      await browser.runtime.sendMessage({
+      await chrome.runtime.sendMessage({
         type: 'CONTENT_UPDATE_HIGHLIGHT',
         payload: {
           url: window.location.href,
@@ -529,7 +529,7 @@ function showHighlightToolbar(highlightSpan, id) {
     e.stopPropagation();
     removeHighlightSpan(id);
     
-    await browser.runtime.sendMessage({
+    await chrome.runtime.sendMessage({
       type: 'CONTENT_REMOVE_HIGHLIGHT',
       payload: {
         url: window.location.href,
@@ -562,7 +562,7 @@ async function showNoteModal(highlightId) {
   let existingNote = '';
   let existingTags = [];
   try {
-    const response = await browser.runtime.sendMessage({
+    const response = await chrome.runtime.sendMessage({
       type: 'CONTENT_REQUEST_RESTORE',
       payload: { url: window.location.href }
     });
@@ -611,7 +611,7 @@ async function showNoteModal(highlightId) {
         .filter(t => t.length > 1)
     )];
     
-    await browser.runtime.sendMessage({
+    await chrome.runtime.sendMessage({
       type: 'CONTENT_UPDATE_HIGHLIGHT',
       payload: {
         url: window.location.href,
@@ -681,7 +681,7 @@ function showNotification(message, type = 'info') {
 // MESSAGE HANDLERS
 // ============================================
 
-browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const { type, payload } = message;
 
   switch (type) {
@@ -689,16 +689,16 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const selectionInfo = getSelectionInfo();
       
       if (!selectionInfo) {
-        showNotification(browser.i18n.getMessage('notificationSelectText'), 'warning');
+        showNotification(chrome.i18n.getMessage('notificationSelectText'), 'warning');
         sendResponse({ success: false, error: 'no-selection' });
         return;
       }
 
       if (selectionInfo.error) {
         if (selectionInfo.error === 'multi-node') {
-          showNotification(browser.i18n.getMessage('notificationMultiNode'), 'warning');
+          showNotification(chrome.i18n.getMessage('notificationMultiNode'), 'warning');
         } else {
-          showNotification(browser.i18n.getMessage('notificationCannotHighlight'), 'warning');
+          showNotification(chrome.i18n.getMessage('notificationCannotHighlight'), 'warning');
         }
         sendResponse({ success: false, error: selectionInfo.error });
         return;
@@ -711,7 +711,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         highlightCache[highlightData.id] = highlightData;
 
         // Save to storage via background
-        browser.runtime.sendMessage({
+        chrome.runtime.sendMessage({
           type: 'CONTENT_ADD_HIGHLIGHT',
           payload: {
             url: window.location.href,
@@ -720,7 +720,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
           }
         });
         
-        showNotification(browser.i18n.getMessage('notificationAdded'), 'success');
+        showNotification(chrome.i18n.getMessage('notificationAdded'), 'success');
         sendResponse({ success: true, highlightData });
       } else {
         sendResponse({ success: false, error: 'apply-failed' });
@@ -790,7 +790,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 async function init() {
   try {
     // Request restore data from background (SINGLE restore source)
-    const response = await browser.runtime.sendMessage({
+    const response = await chrome.runtime.sendMessage({
       type: 'CONTENT_REQUEST_RESTORE',
       payload: { url: window.location.href }
     });
