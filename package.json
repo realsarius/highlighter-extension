@@ -1,0 +1,14 @@
+{
+  "name": "highlighter-extension",
+  "version": "1.4.0",
+  "description": "A straightforward browser extension for marking up the web.",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "lint": "eslint src"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0"
+  },
+  "private": true
+}

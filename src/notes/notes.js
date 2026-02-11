@@ -79,7 +79,7 @@ function renderAllNotes(data, filter = '') {
   notesList.querySelectorAll('.site-group').forEach(el => el.remove());
 
   const urls = Object.keys(data);
-  
+
   if (urls.length === 0) {
     showEmpty();
     return;
@@ -93,20 +93,20 @@ function renderAllNotes(data, filter = '') {
   urls.forEach(url => {
     const pageData = data[url];
     const items = pageData.items || [];
-    
+
     // Filter items by search and/or tag
     let filteredItems = items;
-    
+
     if (filter) {
-      filteredItems = filteredItems.filter(item => 
+      filteredItems = filteredItems.filter(item =>
         (item.quote || '').toLowerCase().includes(filter) ||
         (item.note || '').toLowerCase().includes(filter) ||
         (item.tags || []).some(t => t.toLowerCase().includes(filter))
       );
     }
-    
+
     if (selectedTag) {
-      filteredItems = filteredItems.filter(item => 
+      filteredItems = filteredItems.filter(item =>
         (item.tags || []).includes(selectedTag)
       );
     }
@@ -137,10 +137,10 @@ function createSiteGroup(url, title, items) {
   let domain = url;
   try {
     domain = new URL(url).hostname;
-  } catch (e) {}
+  } catch { }
 
   // Sort by date (newest first)
-  const sortedItems = [...items].sort((a, b) => 
+  const sortedItems = [...items].sort((a, b) =>
     new Date(b.createdAt) - new Date(a.createdAt)
   );
 
@@ -171,10 +171,10 @@ function createSiteGroup(url, title, items) {
       gotoBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
         const highlightId = el.dataset.id;
-        
+
         // Create tab and wait for it to load
         const tab = await chrome.tabs.create({ url });
-        
+
         // Send scroll message after short delay to allow page to load
         setTimeout(() => {
           chrome.tabs.sendMessage(tab.id, {
@@ -186,7 +186,7 @@ function createSiteGroup(url, title, items) {
               chrome.tabs.sendMessage(tab.id, {
                 type: 'SCROLL_TO_HIGHLIGHT',
                 payload: { highlightId }
-              }).catch(() => {});
+              }).catch(() => { });
             }, 1500);
           });
         }, 1000);
@@ -199,21 +199,21 @@ function createSiteGroup(url, title, items) {
       deleteBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
         const highlightId = el.dataset.id;
-        
+
         if (!confirm('Bu vurguyu silmek istediğinize emin misiniz?')) return;
 
         // Remove from storage
         await chrome.runtime.sendMessage({
           type: 'REMOVE_HIGHLIGHT',
-          payload: { 
+          payload: {
             url: url,
-            highlightId: highlightId 
+            highlightId: highlightId
           }
         });
 
         // Update UI
         el.remove();
-        
+
         // Check if group is empty
         if (group.querySelectorAll('.highlight-item').length === 0) {
           group.remove();
@@ -221,8 +221,8 @@ function createSiteGroup(url, title, items) {
 
         // Update stats
         // We need to reload or manually update stats, reloading is safer for sync
-        init(); 
-        
+        init();
+
         showNotification(window.i18n.t('notificationHighlightDeleted'), 'success');
       });
     }
@@ -234,12 +234,12 @@ function createSiteGroup(url, title, items) {
 function createHighlightItem(item, url) {
   const quote = item.quote || '';
 
-  const date = item.createdAt 
-    ? new Date(item.createdAt).toLocaleDateString('tr-TR', { 
-        day: 'numeric', 
-        month: 'short',
-        year: 'numeric'
-      })
+  const date = item.createdAt
+    ? new Date(item.createdAt).toLocaleDateString('tr-TR', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    })
     : '';
 
   const contrastColor = getContrastColor(item.color);
@@ -300,15 +300,15 @@ function renderTagFilter() {
     tagFilterBar.style.display = 'none';
     return;
   }
-  
+
   tagFilterBar.style.display = 'flex';
   tagFilterList.innerHTML = `
     <button class="tag-filter-btn ${!selectedTag ? 'active' : ''}" data-tag="">Tümü</button>
-    ${allTags.map(tag => 
-      `<button class="tag-filter-btn ${selectedTag === tag ? 'active' : ''}" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`
-    ).join('')}
+    ${allTags.map(tag =>
+    `<button class="tag-filter-btn ${selectedTag === tag ? 'active' : ''}" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`
+  ).join('')}
   `;
-  
+
   // Add click handlers
   tagFilterList.querySelectorAll('.tag-filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -361,12 +361,12 @@ exportBtn.addEventListener('click', async () => {
 
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    
+
     const a = document.createElement('a');
     a.href = url;
     a.download = `highlighter-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
-    
+
     URL.revokeObjectURL(url);
     showNotification(window.i18n.t('notificationExportSuccess'), 'success');
   } catch (e) {
@@ -414,7 +414,7 @@ importFile.addEventListener('change', async (e) => {
     });
 
     showNotification(`${count} ${window.i18n.t('notificationImported')}`, 'success');
-    
+
     // Refresh the page
     setTimeout(() => location.reload(), 1000);
   } catch (e) {
@@ -469,11 +469,11 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e)
 navTabs.forEach(tab => {
   tab.addEventListener('click', () => {
     const targetTab = tab.dataset.tab;
-    
+
     // Update active tab
     navTabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    
+
     // Show target content
     tabContents.forEach(content => {
       content.classList.remove('active');
@@ -492,14 +492,14 @@ async function loadSettings() {
     type: 'GET_SETTINGS',
     payload: {}
   });
-  
+
   currentSettings = response || {};
-  
+
   // Apply theme
   const theme = currentSettings.theme || 'auto';
   themeSelect.value = theme;
   applyTheme(theme);
-  
+
   // Apply context menu setting
   const showContextMenu = currentSettings.showContextMenu !== false;
   contextMenuToggle.checked = showContextMenu;
@@ -509,7 +509,7 @@ themeSelect.addEventListener('change', async () => {
   const theme = themeSelect.value;
   currentSettings.theme = theme;
   applyTheme(theme);
-  
+
   await chrome.runtime.sendMessage({
     type: 'UPDATE_SETTINGS',
     payload: { theme }
@@ -519,24 +519,24 @@ themeSelect.addEventListener('change', async () => {
 contextMenuToggle.addEventListener('change', async () => {
   const showContextMenu = contextMenuToggle.checked;
   currentSettings.showContextMenu = showContextMenu;
-  
+
   await chrome.runtime.sendMessage({
     type: 'UPDATE_SETTINGS',
     payload: { showContextMenu }
   });
-  
+
   showNotification(showContextMenu ? window.i18n.t('notificationContextMenuOn') : window.i18n.t('notificationContextMenuOff'), 'success');
 });
 
 clearAllBtn.addEventListener('click', async () => {
   const confirmed = confirm('Tüm vurgular silinecek. Bu işlem geri alınamaz. Devam edilsin mi?');
   if (!confirmed) return;
-  
+
   await chrome.runtime.sendMessage({
     type: 'CLEAR_ALL_DATA',
     payload: {}
   });
-  
+
   showNotification(window.i18n.t('notificationDeleted'), 'success');
   allData = {};
   allTags = [];
@@ -563,7 +563,7 @@ function renderStats(data) {
     (page.items || []).forEach(item => {
       // Notes
       if (item.note) totalNotes++;
-      
+
       // Tags
       if (item.tags) {
         item.tags.forEach(t => {
@@ -608,7 +608,7 @@ function renderStats(data) {
 function renderActivityChart(dates) {
   const container = document.getElementById('activityChart');
   container.innerHTML = '';
-  
+
   // Last 30 days
   const today = new Date();
   const days = [];
@@ -620,10 +620,10 @@ function renderActivityChart(dates) {
     const dateKey = d.toISOString().split('T')[0];
     const val = dates[dateKey] || 0;
     if (val > maxVal) maxVal = val;
-    days.push({ 
-      date: dateKey, 
+    days.push({
+      date: dateKey,
       label: d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }),
-      value: val 
+      value: val
     });
   }
 
@@ -632,10 +632,10 @@ function renderActivityChart(dates) {
     // Only show label for every 3rd day to save space
     const showLabel = index % 3 === 0 || index === 29;
     const heightPercent = maxVal > 0 ? (day.value / maxVal) * 100 : 0;
-    
+
     // Fallback min height for visibility if 0 but we want to show track
     // If value is 0, height is 2px (min-height in CSS)
-    
+
     const col = document.createElement('div');
     col.className = 'bar-col';
     col.innerHTML = `
@@ -649,7 +649,7 @@ function renderActivityChart(dates) {
 function renderTagStats(tags) {
   const container = document.getElementById('tagStatsList');
   container.innerHTML = '';
-  
+
   const sortedTags = Object.entries(tags)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5); // Top 5
@@ -679,7 +679,7 @@ function renderTagStats(tags) {
 function renderColorStats(colors) {
   const container = document.getElementById('colorStatsList');
   container.innerHTML = '';
-  
+
   const sortedColors = Object.entries(colors)
     .sort((a, b) => b[1] - a[1]);
 
@@ -722,15 +722,15 @@ function setupLanguageSelector() {
 
   select.addEventListener('change', async (e) => {
     const newLang = e.target.value;
-    
+
     // Get existing settings
     const result = await chrome.storage.local.get('settings');
     const settings = result.settings || {};
-    
+
     // Update language
     settings.language = newLang;
     await chrome.storage.local.set({ settings });
-    
+
     // Reload to apply changes
     window.location.reload();
   });

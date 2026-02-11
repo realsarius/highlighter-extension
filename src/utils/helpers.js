@@ -31,15 +31,15 @@ function escapeHtml(text) {
 function getContrastColor(hexColor) {
   // Defensive null check
   if (!hexColor) return '#000000';
-  
+
   const hex = hexColor.replace('#', '');
   const r = parseInt(hex.substr(0, 2), 16) / 255;
   const g = parseInt(hex.substr(2, 2), 16) / 255;
   const b = parseInt(hex.substr(4, 2), 16) / 255;
-  
+
   // WCAG luminance formula
   const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  
+
   return luminance > 0.5 ? '#000000' : '#ffffff';
 }
 
@@ -57,7 +57,7 @@ function normalizeUrl(url) {
   try {
     const urlObj = new URL(url);
     return urlObj.origin + urlObj.pathname;
-  } catch (e) {
+  } catch {
     return url;
   }
 }

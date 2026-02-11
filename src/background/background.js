@@ -24,7 +24,7 @@ function normalizeUrl(url) {
     const urlObj = new URL(url);
     // Use origin + pathname (ignore query params and hash)
     return urlObj.origin + urlObj.pathname;
-  } catch (e) {
+  } catch {
     return url;
   }
 }
@@ -139,7 +139,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // Handle async responses
   const handleAsync = async () => {
     const { type, payload } = message;
-    const tabId = sender.tab?.id;
+    // const tabId = sender.tab?.id; // Unused
     const url = payload?.url || sender.tab?.url;
 
     switch (type) {

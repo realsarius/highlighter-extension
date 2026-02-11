@@ -35,14 +35,7 @@ function generateId() {
   return 'hl-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
 }
 
-function normalizeUrl(url) {
-  try {
-    const urlObj = new URL(url);
-    return urlObj.origin + urlObj.pathname;
-  } catch (e) {
-    return url;
-  }
-}
+// normalizeUrl removed as it was unused and exists in helpers.js
 
 function getContrastColor(hexColor) {
   if (!hexColor) return '#000000';
@@ -76,14 +69,14 @@ function getElementXPath(element) {
     const siblings = Array.from(parent.children).filter(
       child => child.tagName === current.tagName
     );
-    
+
     if (siblings.length > 1) {
       const index = siblings.indexOf(current) + 1;
       path = `/${current.tagName.toLowerCase()}[${index}]` + path;
     } else {
       path = `/${current.tagName.toLowerCase()}` + path;
     }
-    
+
     current = parent;
   }
 
@@ -92,7 +85,7 @@ function getElementXPath(element) {
 
 function getTextNodeXPath(textNode) {
   if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return null;
-  
+
   const parent = textNode.parentNode;
   if (!parent) return null;
 
@@ -110,7 +103,7 @@ function getTextNodeXPath(textNode) {
 
 function getElementByXPath(xpath) {
   if (!xpath) return null;
-  
+
   try {
     // Convert our /body/... format to proper XPath
     const fullXPath = '/html' + xpath;
@@ -149,8 +142,8 @@ function getSelectionInfo() {
   if (range.startContainer !== range.endContainer) {
     // Multi-node selection - check if it's _just_ text nodes within same parent
     if (range.startContainer.nodeType !== Node.TEXT_NODE ||
-        range.endContainer.nodeType !== Node.TEXT_NODE ||
-        range.startContainer.parentNode !== range.endContainer.parentNode) {
+      range.endContainer.nodeType !== Node.TEXT_NODE ||
+      range.startContainer.parentNode !== range.endContainer.parentNode) {
       return { error: 'multi-node', text };
     }
   }
@@ -170,7 +163,7 @@ function getSelectionInfo() {
   const fullText = textNode.textContent || '';
   const startOffset = range.startOffset;
   const endOffset = range.endOffset;
-  
+
   const prefix = fullText.substring(Math.max(0, startOffset - CONTEXT_SIZE), startOffset);
   const suffix = fullText.substring(endOffset, Math.min(fullText.length, endOffset + CONTEXT_SIZE));
 
@@ -203,10 +196,10 @@ function createHighlightSpan(id, color) {
   span.style.backgroundColor = color;
   span.style.color = getContrastColor(color);
   span.style.cursor = 'pointer';
-  
+
   // Create listener for interaction
   span.addEventListener('click', (e) => handleHighlightClick(e, id));
-  
+
   return span;
 }
 
@@ -218,7 +211,7 @@ function createHighlightSpan(id, color) {
  */
 function applyHighlight(selectionInfo, color) {
   const { range, text, quote, xpath, startOffset, endOffset, prefix, suffix } = selectionInfo;
-  
+
   const id = generateId();
   const span = createHighlightSpan(id, color);
 
@@ -281,7 +274,7 @@ function tryRestoreHighlight(item) {
   let textNode = getTextNodeByXPath(item.xpath);
   if (textNode && textNode.nodeType === Node.TEXT_NODE) {
     const text = textNode.textContent || '';
-    
+
     // Verify the text matches at expected position
     const expectedText = text.substring(item.startOffset, item.endOffset);
     if (expectedText === item.quote) {
@@ -351,13 +344,13 @@ function findQuoteWithContext(quote, prefix, suffix) {
     while ((index = text.indexOf(quote, searchStart)) !== -1) {
       // Calculate context match score
       let score = 1;
-      
+
       if (prefix && index >= prefix.length) {
         const actualPrefix = text.substring(index - prefix.length, index);
         if (actualPrefix === prefix) score += 2;
         else if (actualPrefix.includes(prefix.slice(-10))) score += 1;
       }
-      
+
       if (suffix && index + quote.length + suffix.length <= text.length) {
         const actualSuffix = text.substring(index + quote.length, index + quote.length + suffix.length);
         if (actualSuffix === suffix) score += 2;
@@ -438,7 +431,7 @@ function scrollToHighlight(id) {
 
   // Add pulse animation
   span.classList.add('hl-pulse');
-  
+
   // Remove animation after it completes
   setTimeout(() => {
     span.classList.remove('hl-pulse');
@@ -455,7 +448,7 @@ let currentTooltip = null;
 
 function handleHighlightClick(e, id) {
   e.stopPropagation();
-  
+
   // Show mini toolbar
   showHighlightToolbar(e.target, id);
 }
@@ -469,9 +462,9 @@ function showHighlightToolbar(highlightSpan, id) {
   toolbar.innerHTML = `
     <div class="hl-toolbar-row">
       <div class="hl-toolbar-colors">
-        ${Object.entries(COLORS).map(([name, color]) => 
-          `<button class="hl-color-btn" data-color="${color}" style="background-color: ${color};" title="${name}"></button>`
-        ).join('')}
+        ${Object.entries(COLORS).map(([name, color]) =>
+    `<button class="hl-color-btn" data-color="${color}" style="background-color: ${color};" title="${name}"></button>`
+  ).join('')}
       </div>
       <button class="hl-note-btn" title="Not Ekle">📝</button>
       <button class="hl-delete-btn" title="Sil">🗑️</button>
@@ -503,7 +496,7 @@ function showHighlightToolbar(highlightSpan, id) {
       e.stopPropagation();
       const color = btn.dataset.color;
       updateHighlightColor(id, color);
-      
+
       await chrome.runtime.sendMessage({
         type: 'CONTENT_UPDATE_HIGHLIGHT',
         payload: {
@@ -512,7 +505,7 @@ function showHighlightToolbar(highlightSpan, id) {
           updates: { color }
         }
       });
-      
+
       removeTooltip();
     });
   });
@@ -528,7 +521,7 @@ function showHighlightToolbar(highlightSpan, id) {
   toolbar.querySelector('.hl-delete-btn').addEventListener('click', async (e) => {
     e.stopPropagation();
     removeHighlightSpan(id);
-    
+
     await chrome.runtime.sendMessage({
       type: 'CONTENT_REMOVE_HIGHLIGHT',
       payload: {
@@ -536,7 +529,7 @@ function showHighlightToolbar(highlightSpan, id) {
         highlightId: id
       }
     });
-    
+
     removeTooltip();
   });
 
@@ -569,7 +562,7 @@ async function showNoteModal(highlightId) {
     const item = response.pageData?.items?.find(i => i.id === highlightId);
     existingNote = item?.note || '';
     existingTags = item?.tags || [];
-  } catch (e) { }
+  } catch { }
 
   const modal = document.createElement('div');
   modal.className = 'hl-extension-note-modal';
@@ -603,14 +596,14 @@ async function showNoteModal(highlightId) {
   modal.querySelector('.hl-note-save-btn').addEventListener('click', async () => {
     const note = textarea.value.trim();
     const tagsInput = modal.querySelector('.hl-tags-input').value.trim();
-    
+
     // Parse tags: split by space, filter those starting with #, remove duplicates
     const tags = [...new Set(
       tagsInput.split(/\s+/)
         .map(t => t.startsWith('#') ? t : (t ? '#' + t : ''))
         .filter(t => t.length > 1)
     )];
-    
+
     await chrome.runtime.sendMessage({
       type: 'CONTENT_UPDATE_HIGHLIGHT',
       payload: {
@@ -668,9 +661,9 @@ function showNotification(message, type = 'info') {
   const notification = document.createElement('div');
   notification.className = `hl-extension-notification hl-notification-${type}`;
   notification.textContent = message;
-  
+
   document.body.appendChild(notification);
-  
+
   setTimeout(() => {
     notification.classList.add('hl-notification-hide');
     setTimeout(() => notification.remove(), 300);
@@ -687,7 +680,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   switch (type) {
     case 'DO_HIGHLIGHT': {
       const selectionInfo = getSelectionInfo();
-      
+
       if (!selectionInfo) {
         showNotification(chrome.i18n.getMessage('notificationSelectText'), 'warning');
         sendResponse({ success: false, error: 'no-selection' });
@@ -705,7 +698,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
 
       const highlightData = applyHighlight(selectionInfo, payload.color);
-      
+
       if (highlightData) {
         // Update cache
         highlightCache[highlightData.id] = highlightData;
@@ -719,7 +712,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             highlightData
           }
         });
-        
+
         showNotification(chrome.i18n.getMessage('notificationAdded'), 'success');
         sendResponse({ success: true, highlightData });
       } else {
@@ -737,7 +730,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case 'UPDATE_HIGHLIGHT_DATA': {
       const { highlightId, updates } = payload;
-      
+
       // Update cache (create if missing to ensure note is stored)
       if (!highlightCache[highlightId]) {
         highlightCache[highlightId] = {};
@@ -745,12 +738,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         // Not strictly necessary for showing the note in toolbar.
       }
       highlightCache[highlightId] = { ...highlightCache[highlightId], ...updates };
-      
+
       // Update visual if color changed
       if (updates.color) {
         updateHighlightColor(highlightId, updates.color);
       }
-      
+
       // Update toolbar if open for this highlight
       if (currentTooltip && currentTooltip.dataset.id === highlightId) {
         const notePreview = currentTooltip.querySelector('.hl-toolbar-note-preview');
@@ -769,7 +762,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           if (notePreview) notePreview.remove();
         }
       }
-      
+
       sendResponse({ success: true });
       return;
     }

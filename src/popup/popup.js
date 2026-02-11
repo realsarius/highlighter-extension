@@ -14,7 +14,7 @@ const allNotesBtn = document.getElementById('allNotesBtn');
 // ============================================
 // STATE
 // ============================================
-let currentUrl = '';
+// let currentUrl = ''; // Unused
 let currentColor = '#FFEB3B';
 let currentTabId = null;
 
@@ -40,12 +40,12 @@ async function init() {
     });
 
     if (response) {
-      currentUrl = response.url;
+      // currentUrl = response.url; // Unused
       currentColor = response.settings?.lastUsedColor || '#FFEB3B';
-      
+
       // Update color palette selection
       updateSelectedColor(currentColor);
-      
+
       // Render highlights
       renderHighlights(response.pageData?.items || []);
     }
@@ -77,7 +77,7 @@ colorPalette.addEventListener('click', async (e) => {
       type: 'POPUP_HIGHLIGHT_SELECTION',
       payload: { color }
     });
-    
+
     // Refresh list after a short delay
     setTimeout(refreshHighlights, 200);
   } catch (e) {
@@ -95,7 +95,7 @@ colorPalette.addEventListener('click', async (e) => {
  */
 function renderHighlights(items) {
   highlightCount.textContent = items.length;
-  
+
   if (items.length === 0) {
     emptyState.style.display = 'block';
     highlightsList.querySelectorAll('.highlight-item').forEach(el => el.remove());
@@ -103,12 +103,12 @@ function renderHighlights(items) {
   }
 
   emptyState.style.display = 'none';
-  
+
   // Clear existing items
   highlightsList.querySelectorAll('.highlight-item').forEach(el => el.remove());
 
   // Sort by creation date (newest first)
-  const sortedItems = [...items].sort((a, b) => 
+  const sortedItems = [...items].sort((a, b) =>
     new Date(b.createdAt) - new Date(a.createdAt)
   );
 
@@ -127,13 +127,13 @@ function createHighlightElement(item) {
   const div = document.createElement('div');
   div.className = 'highlight-item';
   div.dataset.id = item.id;
-  
+
   const quoteText = item.quote || item.text || '(boş)';
-  const truncatedQuote = quoteText.length > 60 
-    ? quoteText.substring(0, 60) + '...' 
+  const truncatedQuote = quoteText.length > 60
+    ? quoteText.substring(0, 60) + '...'
     : quoteText;
 
-  const notePreview = item.note 
+  const notePreview = item.note
     ? (item.note.length > 40 ? item.note.substring(0, 40) + '...' : item.note)
     : '';
 
@@ -196,20 +196,20 @@ function showColorDropdown(itemEl, item) {
 
   const dropdown = document.createElement('div');
   dropdown.className = 'color-dropdown';
-  
+
   const colors = ['#FFEB3B', '#69F0AE', '#40C4FF', '#FF80AB', '#FFAB40', '#B388FF'];
-  
+
   colors.forEach(color => {
     const btn = document.createElement('button');
     btn.className = 'dropdown-color-btn';
     btn.style.backgroundColor = color;
     if (color === item.color) btn.classList.add('current');
-    
+
     btn.addEventListener('click', async () => {
       await updateHighlightColor(item.id, color);
       dropdown.remove();
     });
-    
+
     dropdown.appendChild(btn);
   });
 
@@ -230,7 +230,7 @@ async function deleteHighlight(id) {
       type: 'POPUP_REMOVE_HIGHLIGHT',
       payload: { highlightId: id, tabId: currentTabId }
     });
-    
+
     // Refresh list
     await refreshHighlights();
   } catch (e) {
@@ -244,7 +244,7 @@ async function updateHighlightColor(id, color) {
       type: 'POPUP_UPDATE_HIGHLIGHT',
       payload: { highlightId: id, updates: { color }, tabId: currentTabId }
     });
-    
+
     // Refresh list
     await refreshHighlights();
   } catch (e) {
@@ -258,7 +258,7 @@ async function refreshHighlights() {
       type: 'POPUP_GET_PAGE_DATA',
       payload: {}
     });
-    
+
     if (response && response.pageData) {
       renderHighlights(response.pageData.items || []);
     }
@@ -311,14 +311,14 @@ function showNoteInput(itemEl, item) {
   container.querySelector('.note-save-btn').addEventListener('click', async () => {
     const note = textarea.value.trim();
     const tagsInput = container.querySelector('.tags-input').value.trim();
-    
+
     // Parse tags
     const tags = [...new Set(
       tagsInput.split(/\s+/)
         .map(t => t.startsWith('#') ? t : (t ? '#' + t : ''))
         .filter(t => t.length > 1)
     )];
-    
+
     await chrome.runtime.sendMessage({
       type: 'POPUP_UPDATE_HIGHLIGHT',
       payload: { highlightId: item.id, updates: { note, tags }, tabId: currentTabId }
