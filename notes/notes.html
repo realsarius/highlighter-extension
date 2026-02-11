@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tüm Notlar - Highlighter</title>
+  <link rel="icon" type="image/png" sizes="48x48" href="../icons/icon-48.png">
+  <link rel="stylesheet" href="notes.css">
+</head>
+<body>
+  <div class="notes-container">
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-tab="notes">📚 <span data-i18n="tabNotes">Notlar</span></button>
+      <button class="nav-tab" data-tab="stats">📊 <span data-i18n="tabStats">İstatistikler</span></button>
+      <button class="nav-tab" data-tab="settings">⚙️ <span data-i18n="tabSettings">Ayarlar</span></button>
+      <button class="nav-tab" data-tab="about">ℹ️ <span data-i18n="tabAbout">Hakkında</span></button>
+    </nav>
+
+    <!-- Notes Tab -->
+    <div class="tab-content active" id="tab-notes">
+      <!-- Header -->
+      <header class="notes-header">
+        <h1>📚 <span data-i18n="notesTitle">Tüm Notlar</span></h1>
+        <p class="subtitle" data-i18n="notesSubtitle">Tüm web sitelerindeki vurgularınız</p>
+      </header>
+
+      <!-- Stats -->
+      <div class="stats-bar">
+        <div class="stat">
+          <span class="stat-value" id="totalSites">0</span>
+          <span class="stat-label" data-i18n="notesSites">Site</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="totalHighlights">0</span>
+          <span class="stat-label" data-i18n="notesHighlights">Vurgu</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions-bar">
+        <button class="action-btn" id="exportBtn">📤 <span data-i18n="btnExport">Export</span></button>
+        <button class="action-btn" id="importBtn">📥 <span data-i18n="btnImport">Import</span></button>
+        <input type="file" id="importFile" accept=".json" style="display: none;">
+      </div>
+
+      <!-- Search -->
+      <div class="search-bar">
+        <input type="text" id="searchInput" data-i18n="notesSearch" placeholder="Vurgularda ara..." autocomplete="off">
+      </div>
+
+      <!-- Tag Filter -->
+      <div class="tag-filter-bar" id="tagFilterBar" style="display: none;">
+        <span class="tag-filter-label">🏷️ <span data-i18n="modalTags">Etiketler:</span></span>
+        <div class="tag-filter-list" id="tagFilterList"></div>
+      </div>
+
+      <!-- Notes List -->
+      <main class="notes-list" id="notesList">
+        <div class="loading" id="loading" data-i18n="loading">Yükleniyor...</div>
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <p data-i18n="notesEmpty">Henüz hiç vurgu yok</p>
+          <small data-i18n="notesEmptyHint">Web sayfalarında metin seçip vurgulayın</small>
+        </div>
+      </main>
+    </div>
+
+    <!-- Stats Tab -->
+    <div class="tab-content" id="tab-stats">
+      <header class="notes-header">
+        <h1>📊 <span data-i18n="statsTitle">İstatistikler</span></h1>
+        <p class="subtitle" data-i18n="statsSubtitle">Okuma ve vurgulama alışkanlıklarınız</p>
+      </header>
+      
+      <!-- Summary Cards -->
+      <div class="stats-summary-grid">
+        <div class="summary-card">
+          <span class="summary-icon">📅</span>
+          <span class="summary-value" id="statsTotalDays">0</span>
+          <span class="summary-label" data-i18n="statsActiveDays">Aktif Gün</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-icon">📝</span>
+          <span class="summary-value" id="statsTotalNotes">0</span>
+          <span class="summary-label" data-i18n="statsTotalNotes">Eklenen Not</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-icon">🏷️</span>
+          <span class="summary-value" id="statsTotalTags">0</span>
+          <span class="summary-label" data-i18n="statsTotalTags">Kullanılan Etiket</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-icon">⚡</span>
+          <span class="summary-value" id="statsMaxDay">0</span>
+          <span class="summary-label" data-i18n="statsBestDay">En Verimli Gün (Vurgu)</span>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="charts-container">
+        
+        <!-- Activity Chart -->
+        <div class="chart-card large">
+          <h3>📈 <span data-i18n="statsActivityChart">Son 30 Günlük Aktivite</span></h3>
+          <div class="chart-wrapper">
+             <div class="bar-chart" id="activityChart"></div>
+          </div>
+        </div>
+
+        <!-- Tag Cloud / List -->
+        <div class="chart-card">
+          <h3>🏷️ <span data-i18n="statsTopTags">En Çok Kullanılan Etiketler</span></h3>
+          <div class="tag-stats-list" id="tagStatsList"></div>
+        </div>
+
+        <!-- Color Distribution -->
+        <div class="chart-card">
+          <h3>🎨 <span data-i18n="statsColorDist">Renk Dağılımı</span></h3>
+          <div class="color-stats-list" id="colorStatsList"></div>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div class="tab-content" id="tab-settings">
+      <header class="notes-header">
+        <h1>⚙️ <span data-i18n="settingsTitle">Ayarlar</span></h1>
+        <p class="subtitle" data-i18n="settingsSubtitle">Uzantı tercihlerinizi özelleştirin</p>
+      </header>
+
+      <div class="settings-section">
+        <h2 class="settings-title">🎨 <span data-i18n="settingsAppearance">Görünüm</span></h2>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label" data-i18n="settingsTheme">Tema</span>
+            <span class="setting-desc" data-i18n="settingsThemeDesc">Sayfa temasını seçin</span>
+          </div>
+          <select class="setting-select" id="themeSelect">
+            <option value="auto" data-i18n="themeAuto">🌓 Otomatik (Sistem)</option>
+            <option value="dark" data-i18n="themeDark">🌙 Koyu</option>
+            <option value="light" data-i18n="themeLight">☀️ Açık</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h2 class="settings-title">🌍 <span data-i18n="settingsLanguage">Dil</span></h2>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label" data-i18n="settingsLanguage">Dil</span>
+            <span class="setting-desc" data-i18n="settingsLanguageDesc">Uzantı dilini seçin</span>
+          </div>
+          <select class="setting-select" id="languageSelect">
+            <!-- Populated via JS -->
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h2 class="settings-title">📋 <span data-i18n="settingsContextMenu">Sağ Tık Menüsü</span></h2>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label" data-i18n="settingsContextMenuLabel">Bağlam Menüsünde Göster</span>
+            <span class="setting-desc" data-i18n="settingsContextMenuDesc">Sağ tık menüsünde vurgulama seçeneklerini göster</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="contextMenuToggle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h2 class="settings-title">💾 <span data-i18n="settingsData">Veri Yönetimi</span></h2>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label" data-i18n="settingsClearAll">Tüm Verileri Sil</span>
+            <span class="setting-desc" data-i18n="settingsClearAllDesc">Tüm vurgular ve ayarlar silinecek</span>
+          </div>
+          <button class="danger-btn" id="clearAllBtn">🗑️ <span data-i18n="btnClear">Tümünü Sil</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Tab -->
+    <div class="tab-content" id="tab-about">
+      <header class="notes-header">
+        <h1>ℹ️ <span data-i18n="aboutTitle">Hakkında</span></h1>
+        <p class="subtitle" data-i18n="aboutSubtitle">Highlighter Extension</p>
+      </header>
+
+      <div class="about-section">
+        <div class="about-logo">✨</div>
+        <h2 class="about-name">Highlighter</h2>
+        <p class="about-version">v1.0.0</p>
+        <p class="about-desc" data-i18n="aboutUserDesc">Web sayfalarında metinleri vurgulayın, notlar ekleyin ve etiketlerle organize edin.</p>
+      </div>
+
+      <div class="info-cards">
+        <div class="info-card">
+          <h3>📄 <span data-i18n="aboutLicense">Lisans</span></h3>
+          <p>MIT License</p>
+        </div>
+
+        <div class="info-card">
+          <h3>🔒 <span data-i18n="aboutPrivacy">Gizlilik</span></h3>
+          <p data-i18n="aboutPrivacyDesc">Tüm verileriniz yerel olarak tarayıcınızda saklanır.</p>
+        </div>
+
+        <div class="info-card">
+          <h3>🛡️ <span data-i18n="aboutPermissions">İzinler</span></h3>
+          <p>
+            storage, tabs, menus
+          </p>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <span data-i18n="aboutCopyright">© 2026 Highlighter Extension</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="../utils/i18nHelper.js"></script>
+  <script src="notes.js"></script>
+</body>
+</html>

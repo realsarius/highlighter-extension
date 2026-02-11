@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Highlighter</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="popup-header">
+      <h1>✨ <span data-i18n="popupTitle">Highlighter</span></h1>
+      <span class="shortcut-hint">⌨️ <span data-i18n="shortcutHint">Ctrl+Shift+Y</span></span>
+    </header>
+
+    <!-- Color Picker -->
+    <section class="color-section">
+      <h2 data-i18n="popupSelectColor">Renk Seç</h2>
+      <div class="color-palette" id="colorPalette">
+        <button class="color-btn" data-color="#FFEB3B" data-i18n-title="colorYellow" title="Sarı" style="background-color: #FFEB3B;"></button>
+        <button class="color-btn" data-color="#69F0AE" data-i18n-title="colorGreen" title="Yeşil" style="background-color: #69F0AE;"></button>
+        <button class="color-btn" data-color="#40C4FF" data-i18n-title="colorBlue" title="Mavi" style="background-color: #40C4FF;"></button>
+        <button class="color-btn" data-color="#FF80AB" data-i18n-title="colorPink" title="Pembe" style="background-color: #FF80AB;"></button>
+        <button class="color-btn" data-color="#FFAB40" data-i18n-title="colorOrange" title="Turuncu" style="background-color: #FFAB40;"></button>
+        <button class="color-btn" data-color="#B388FF" data-i18n-title="colorPurple" title="Mor" style="background-color: #B388FF;"></button>
+      </div>
+    </section>
+
+    <!-- Highlights List -->
+    <section class="highlights-section">
+      <h2><span data-i18n="popupHighlightsOnPage">Bu Sayfadaki Vurgular</span> <span id="highlightCount" class="count-badge">0</span></h2>
+      <div class="highlights-list" id="highlightsList">
+        <div class="empty-state" id="emptyState">
+          <p data-i18n="popupNoHighlights">Henüz vurgu yok</p>
+          <small data-i18n="popupSelectTextHint">Metin seçip yukarıdan renk seçin</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="popup-footer">
+      <button class="all-notes-btn" id="allNotesBtn">📚 <span data-i18n="popupAllNotes">Tüm Notlar</span></button>
+    </footer>
+  </div>
+
+  <script src="../utils/i18nHelper.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

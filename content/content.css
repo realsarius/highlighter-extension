@@ -1,0 +1,364 @@
+/**
+ * Highlighter Extension - Content Styles
+ */
+
+/* Highlight base styles */
+.hl-extension-highlight {
+  border-radius: 2px;
+  padding: 1px 0;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hl-extension-highlight:hover {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Pulse animation for scroll-to-highlight */
+.hl-extension-highlight.hl-pulse {
+  animation: hl-pulse-glow 0.5s ease-in-out 3;
+}
+
+@keyframes hl-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 235, 59, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 235, 59, 0.5);
+  }
+}
+
+/* Toolbar */
+/* Toolbar */
+.hl-extension-toolbar {
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  background: #1a1a1a;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: hl-fade-in 0.15s ease;
+  z-index: 10000;
+}
+
+.hl-toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hl-toolbar-note-preview {
+  margin-top: 6px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: #ddd;
+  font-size: 12px;
+  max-width: 220px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.4;
+  font-family: system-ui, -apple-system, sans-serif;
+  border-left: 2px solid #FFEB3B;
+}
+
+.hl-toolbar-colors {
+  display: flex;
+  gap: 4px;
+}
+
+.hl-color-btn {
+  width: 22px;
+  height: 22px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.hl-color-btn:hover {
+  transform: scale(1.15);
+  border-color: white;
+}
+
+.hl-delete-btn {
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 4px;
+  margin-left: 4px;
+  transition: background-color 0.15s ease;
+}
+
+.hl-delete-btn:hover {
+  background: rgba(255, 100, 100, 0.2);
+}
+
+/* Notifications */
+.hl-extension-notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  z-index: 999999;
+  animation: hl-slide-in 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.hl-notification-success {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+}
+
+.hl-notification-warning {
+  background: linear-gradient(135deg, #FF9800, #F57C00);
+}
+
+.hl-notification-error {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+}
+
+.hl-notification-info {
+  background: linear-gradient(135deg, #2196F3, #1976D2);
+}
+
+.hl-notification-hide {
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Animations */
+@keyframes hl-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hl-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Note Button */
+.hl-note-btn {
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 4px;
+  margin-left: 4px;
+  transition: background-color 0.15s ease;
+}
+
+.hl-note-btn:hover {
+  background: rgba(255, 200, 100, 0.2);
+}
+
+/* Note Modal */
+.hl-extension-note-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999999;
+  animation: hl-fade-in 0.2s ease;
+}
+
+.hl-note-modal-content {
+  background: #1a1a2e;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  animation: hl-modal-pop 0.2s ease;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.hl-note-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.hl-note-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 0 0 16px;
+}
+
+.hl-note-close-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: #888;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.hl-note-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.hl-note-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.hl-note-textarea::placeholder {
+  color: #666;
+}
+
+.hl-note-textarea:focus {
+  border-color: rgba(255, 235, 59, 0.5);
+}
+
+.hl-note-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 0 0 16px;
+}
+
+/* Tags Section */
+.hl-tags-section {
+  padding: 0 0 16px;
+}
+
+.hl-note-cancel-btn,
+.hl-note-save-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.hl-note-cancel-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #888;
+}
+
+.hl-note-cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.hl-note-save-btn {
+  background: linear-gradient(135deg, #FFEB3B, #FFC107);
+  border: none;
+  color: #000;
+}
+
+.hl-note-save-btn:hover {
+  background: linear-gradient(135deg, #FFC107, #FFB300);
+}
+
+/* Tags Section */
+.hl-tags-section {
+  padding: 0 20px 16px;
+}
+
+.hl-tags-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #aaa;
+  margin-bottom: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.hl-tags-input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.hl-tags-input::placeholder {
+  color: #666;
+}
+
+.hl-tags-input:focus {
+  border-color: rgba(179, 136, 255, 0.5);
+}
+
+.hl-tags-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  color: #666;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+@keyframes hl-modal-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
