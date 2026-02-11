@@ -1,7 +1,11 @@
 /**
- * Highlighter Extension - Background Script
+ * Highlighter Extension - Background Script (Service Worker)
  * Single source of truth for storage operations
  */
+
+// Load browser polyfill for Chrome compatibility
+try { importScripts('lib/browser-polyfill.min.js'); } catch (e) { /* Firefox doesn't need it */ }
+
 
 // ============================================
 // STORAGE KEYS
