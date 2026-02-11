@@ -8,14 +8,18 @@
   box-sizing: border-box;
 }
 
+html {
+  width: 320px;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   font-size: 13px;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   color: #e0e0e0;
-  min-width: 320px;
-  max-width: 320px;
+  width: 320px;
 }
+
 
 .popup-container {
   padding: 16px;
