@@ -56,14 +56,14 @@ async function saveHighlightsForUrl(url, title, items) {
   const normalizedUrl = normalizeUrl(url);
   const result = await browser.storage.local.get(STORAGE_KEY_HIGHLIGHTS);
   const highlights = result[STORAGE_KEY_HIGHLIGHTS] || {};
-  
+
   if (items.length === 0) {
     // Remove the URL entry if no highlights
     delete highlights[normalizedUrl];
   } else {
     highlights[normalizedUrl] = { title, items };
   }
-  
+
   await browser.storage.local.set({ [STORAGE_KEY_HIGHLIGHTS]: highlights });
 }
 
@@ -179,7 +179,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
       case 'POPUP_GET_PAGE_DATA': {
         const tabs = await browser.tabs.query({ active: true, currentWindow: true });
         if (tabs.length === 0) return { pageData: { title: '', items: [] }, settings: await getSettings() };
-        
+
         const activeUrl = tabs[0].url;
         const pageData = await getHighlightsForUrl(activeUrl);
         const settings = await getSettings();
@@ -209,7 +209,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
       // Popup requests to remove a highlight
       case 'POPUP_REMOVE_HIGHLIGHT': {
         const { highlightId, tabId } = payload;
-        
+
         let targetTabId = tabId;
         if (!targetTabId) {
           const tabs = await browser.tabs.query({ active: true, currentWindow: true });
@@ -219,14 +219,14 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (targetTabId) {
           const tab = await browser.tabs.get(targetTabId);
           const activeUrl = tab.url;
-          
+
           await removeHighlight(activeUrl, highlightId);
-          
+
           // Tell content script to remove the visual
           await browser.tabs.sendMessage(targetTabId, {
             type: 'REMOVE_HIGHLIGHT_VISUAL',
             payload: { highlightId }
-          }).catch(() => {});
+          }).catch(() => { });
         }
         return { success: true };
       }
@@ -234,7 +234,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
       // Popup updates highlight (color or note)
       case 'POPUP_UPDATE_HIGHLIGHT': {
         const { highlightId, updates, tabId } = payload;
-        
+
         let targetTabId = tabId;
         if (!targetTabId) {
           const tabs = await browser.tabs.query({ active: true, currentWindow: true });
@@ -244,15 +244,15 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (targetTabId) {
           const tab = await browser.tabs.get(targetTabId);
           const activeUrl = tab.url;
-          
+
           await updateHighlight(activeUrl, highlightId, updates);
-          
+
           // Always tell content script to update its cache/visuals
           await browser.tabs.sendMessage(targetTabId, {
             type: 'UPDATE_HIGHLIGHT_DATA',
             payload: { highlightId, updates }
-          }).catch(() => {});
-          
+          }).catch(() => { });
+
           // Additional specific visual update if color changed
           if (updates.color) {
             await updateSettings({ lastUsedColor: updates.color });
@@ -300,16 +300,16 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
       // Update settings
       case 'UPDATE_SETTINGS': {
         const newSettings = await updateSettings(payload);
-        
+
         // Handle context menu visibility change
         if ('showContextMenu' in payload) {
           if (payload.showContextMenu) {
             createContextMenus();
           } else {
-            browser.menus.removeAll();
+            browser.contextMenus.removeAll();
           }
         }
-        
+
         return newSettings;
       }
 
@@ -337,7 +337,7 @@ browser.commands.onCommand.addListener(async (command) => {
   if (command === 'highlight-selection') {
     const settings = await getSettings();
     const tabs = await browser.tabs.query({ active: true, currentWindow: true });
-    
+
     if (tabs.length > 0) {
       browser.tabs.sendMessage(tabs[0].id, {
         type: 'DO_HIGHLIGHT',
@@ -363,9 +363,9 @@ const MENU_COLORS = [
 // Create context menu on install/startup
 function createContextMenus() {
   // Remove existing menus first
-  browser.menus.removeAll().then(() => {
+  browser.contextMenus.removeAll().then(() => {
     // Parent menu
-    browser.menus.create({
+    browser.contextMenus.create({
       id: 'highlighter-parent',
       title: browser.i18n.getMessage('contextMenuHighlight') || 'Vurgula',
       contexts: ['selection']
@@ -373,7 +373,7 @@ function createContextMenus() {
 
     // Color submenu items
     MENU_COLORS.forEach(item => {
-      browser.menus.create({
+      browser.contextMenus.create({
         id: item.id,
         parentId: 'highlighter-parent',
         title: item.title,
@@ -384,17 +384,17 @@ function createContextMenus() {
 }
 
 // Handle menu clicks
-browser.menus.onClicked.addListener(async (info, tab) => {
+browser.contextMenus.onClicked.addListener(async (info, tab) => {
   // Check if it's a color menu item
   const colorItem = MENU_COLORS.find(c => c.id === info.menuItemId);
-  
+
   if (colorItem && tab?.id) {
     // Send highlight command to content script
     browser.tabs.sendMessage(tab.id, {
       type: 'DO_HIGHLIGHT',
       payload: { color: colorItem.color }
     });
-    
+
     // Update last used color
     await updateSettings({ lastUsedColor: colorItem.color });
   }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
   <link rel="icon" type="image/png" sizes="48x48" href="../icons/icon-48.png">
   <link rel="stylesheet" href="notes.css">
 </head>
+
 <body>
   <div class="notes-container">
     <!-- Navigation Tabs -->
@@ -71,7 +73,7 @@
         <h1>📊 <span data-i18n="statsTitle">İstatistikler</span></h1>
         <p class="subtitle" data-i18n="statsSubtitle">Okuma ve vurgulama alışkanlıklarınız</p>
       </header>
-      
+
       <!-- Summary Cards -->
       <div class="stats-summary-grid">
         <div class="summary-card">
@@ -98,12 +100,12 @@
 
       <!-- Charts Section -->
       <div class="charts-container">
-        
+
         <!-- Activity Chart -->
         <div class="chart-card large">
           <h3>📈 <span data-i18n="statsActivityChart">Son 30 Günlük Aktivite</span></h3>
           <div class="chart-wrapper">
-             <div class="bar-chart" id="activityChart"></div>
+            <div class="bar-chart" id="activityChart"></div>
           </div>
         </div>
 
@@ -118,7 +120,7 @@
           <h3>🎨 <span data-i18n="statsColorDist">Renk Dağılımı</span></h3>
           <div class="color-stats-list" id="colorStatsList"></div>
         </div>
-        
+
       </div>
     </div>
 
@@ -131,7 +133,7 @@
 
       <div class="settings-section">
         <h2 class="settings-title">🎨 <span data-i18n="settingsAppearance">Görünüm</span></h2>
-        
+
         <div class="setting-item">
           <div class="setting-info">
             <span class="setting-label" data-i18n="settingsTheme">Tema</span>
@@ -147,7 +149,7 @@
 
       <div class="settings-section">
         <h2 class="settings-title">🌍 <span data-i18n="settingsLanguage">Dil</span></h2>
-        
+
         <div class="setting-item">
           <div class="setting-info">
             <span class="setting-label" data-i18n="settingsLanguage">Dil</span>
@@ -161,11 +163,12 @@
 
       <div class="settings-section">
         <h2 class="settings-title">📋 <span data-i18n="settingsContextMenu">Sağ Tık Menüsü</span></h2>
-        
+
         <div class="setting-item">
           <div class="setting-info">
             <span class="setting-label" data-i18n="settingsContextMenuLabel">Bağlam Menüsünde Göster</span>
-            <span class="setting-desc" data-i18n="settingsContextMenuDesc">Sağ tık menüsünde vurgulama seçeneklerini göster</span>
+            <span class="setting-desc" data-i18n="settingsContextMenuDesc">Sağ tık menüsünde vurgulama seçeneklerini
+              göster</span>
           </div>
           <label class="toggle">
             <input type="checkbox" id="contextMenuToggle" checked>
@@ -176,7 +179,7 @@
 
       <div class="settings-section">
         <h2 class="settings-title">💾 <span data-i18n="settingsData">Veri Yönetimi</span></h2>
-        
+
         <div class="setting-item">
           <div class="setting-info">
             <span class="setting-label" data-i18n="settingsClearAll">Tüm Verileri Sil</span>
@@ -198,7 +201,8 @@
         <div class="about-logo">✨</div>
         <h2 class="about-name">Highlighter</h2>
         <p class="about-version">v1.0.0</p>
-        <p class="about-desc" data-i18n="aboutUserDesc">Web sayfalarında metinleri vurgulayın, notlar ekleyin ve etiketlerle organize edin.</p>
+        <p class="about-desc" data-i18n="aboutUserDesc">Web sayfalarında metinleri vurgulayın, notlar ekleyin ve
+          etiketlerle organize edin.</p>
       </div>
 
       <div class="info-cards">
@@ -215,7 +219,7 @@
         <div class="info-card">
           <h3>🛡️ <span data-i18n="aboutPermissions">İzinler</span></h3>
           <p>
-            storage, tabs, menus
+            storage, tabs, contextMenus
           </p>
         </div>
       </div>
@@ -226,7 +230,9 @@
     </div>
   </div>
 
+  <script src="../lib/browser-polyfill.min.js"></script>
   <script src="../utils/i18nHelper.js"></script>
   <script src="notes.js"></script>
 </body>
+
 </html>
